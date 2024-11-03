@@ -4,6 +4,7 @@ import { errorHandler } from "./middleware/errorHandler";
 import connectDB from "./config/db";
 import  swaggerUi  from 'swagger-ui-express';
 import swaggerJsDoc from 'swagger-jsdoc';
+import userRoutes from "./routes/aouthRoutes";
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ const PORT = process.env.PORT;
 
 // Middleware
 app.use(express.json());
+app.use('/api/users', userRoutes);
 
 connectDB();
 

@@ -1,15 +1,52 @@
-import dotenv from 'dotenv';
-import express from 'express';
-import mongoose from 'mongoose';
+import express from "express";
+import dotenv from "dotenv";
+import { errorHandler } from "./middleware/errorHandler";
+import connectDB from "./config/db";
+import  swaggerUi  from 'swagger-ui-express';
+import swaggerJsDoc from 'swagger-jsdoc';
 
 dotenv.config();
 
 const app = express();
+
+const PORT = process.env.PORT;
+
+// Middleware
 app.use(express.json());
 
-mongoose.connect(process.env.MONGODB_URI!)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(error => console.error('Failed to connect MongoDB:', error));
+connectDB();
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Professional Learning Platform',
+      version: '1.0.0',
+      description: 'API for managing user and courses',
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}`, 
+      },
+    ],
+  },
+  apis: ['./dist/routes/*.js'], 
+};
+// Routes
+const swaggerSpec = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+
+
+
+// Error handling middleware
+app.use(errorHandler);
+
+
+
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+export default app;
